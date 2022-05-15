@@ -55,7 +55,7 @@ class saving_test_job : public job
 public:
 	saving_test_job(const priorities& priority, const vector<unsigned char>& data) : job(priority, data)
 	{
-		save();
+		save(L"thread_sample");
 	}
 
 protected:
