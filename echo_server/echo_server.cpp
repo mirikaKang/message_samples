@@ -290,12 +290,17 @@ void received_message(shared_ptr<container::value_container> container)
 		return;
 	}
 
+#ifdef __USE_TYPE_CONTAINER__
+	logger::handle().write(logging_level::information,
+		fmt::format(L"received message: {}", container->serialize()));
+#else
 #ifdef _WIN32
 	logger::handle().write(logging_level::information,
 		fmt::format(L"received message: {}", container->serialize()));
 #else
 	logger::handle().write(logging_level::information,
 		converter::to_wstring(fmt::format("received message: {}", container->serialize())));
+#endif
 #endif
 }
 
@@ -310,10 +315,17 @@ void received_echo_test(shared_ptr<container::value_container> container)
 		return;
 	}
 
-#ifdef _WIN32
-	logger::handle().write(logging_level::information, fmt::format(L"received message: {}", container->serialize()));
+#ifdef __USE_TYPE_CONTAINER__
+	logger::handle().write(logging_level::information, 
+		fmt::format(L"received message: {}", container->serialize()));
 #else
-	logger::handle().write(logging_level::information, converter::to_wstring(fmt::format("received message: {}", container->serialize())));
+#ifdef _WIN32
+	logger::handle().write(logging_level::information, 
+		fmt::format(L"received message: {}", container->serialize()));
+#else
+	logger::handle().write(logging_level::information, 
+		converter::to_wstring(fmt::format("received message: {}", container->serialize())));
+#endif
 #endif
 
 #ifndef __USE_TYPE_CONTAINER__

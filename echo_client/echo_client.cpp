@@ -237,10 +237,17 @@ void received_message(shared_ptr<container::value_container> container)
 		return;
 	}
 
-#ifdef _WIN32
-	logger::handle().write(logging_level::sequence, fmt::format(L"unknown message: {}", container->serialize()));
+#ifdef __USE_TYPE_CONTAINER__
+	logger::handle().write(logging_level::sequence,
+		fmt::format(L"unknown message: {}", container->serialize()));
 #else
-	logger::handle().write(logging_level::sequence, converter::to_wstring(fmt::format("unknown message: {}", container->serialize())));
+#ifdef _WIN32
+	logger::handle().write(logging_level::sequence, 
+		fmt::format(L"unknown message: {}", container->serialize()));
+#else
+	logger::handle().write(logging_level::sequence, 
+		converter::to_wstring(fmt::format("unknown message: {}", container->serialize())));
+#endif
 #endif
 }
 
@@ -255,10 +262,17 @@ void received_echo_test(shared_ptr<container::value_container> container)
 		return;
 	}
 
-#ifdef _WIN32
-	logger::handle().write(logging_level::information, fmt::format(L"received message: {}", container->serialize()));
+#ifdef __USE_TYPE_CONTAINER__
+	logger::handle().write(logging_level::sequence,
+		fmt::format(L"received message: {}", container->serialize()));
 #else
-	logger::handle().write(logging_level::information, converter::to_wstring(fmt::format("received message: {}", container->serialize())));
+#ifdef _WIN32
+	logger::handle().write(logging_level::information, 
+		fmt::format(L"received message: {}", container->serialize()));
+#else
+	logger::handle().write(logging_level::information, 
+		converter::to_wstring(fmt::format("received message: {}", container->serialize())));
+#endif
 #endif
 
 	_promise_status.set_value(true);

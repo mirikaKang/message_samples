@@ -3,6 +3,7 @@
 #include "argument_parser.h"
 
 #include "container.h"
+#include "converting.h"
 #include "values/bool_value.h"
 #include "values/float_value.h"
 #include "values/double_value.h"
@@ -23,6 +24,7 @@ constexpr auto PROGRAM_NAME = L"container_sample";
 
 using namespace logging;
 using namespace container;
+using namespace converting;
 using namespace argument_parser;
 
 bool write_console = false;
@@ -120,7 +122,7 @@ bool parse_arguments(const map<wstring, wstring>& arguments)
 	target = arguments.find(L"--logging_level");
 	if (target != arguments.end())
 	{
-		log_level = (logging_level)_wtoi(target->second.c_str());
+		log_level = (logging_level)atoi(converter::to_string(target->second).c_str());
 	}
 
 	return true;
