@@ -35,7 +35,7 @@ bool write_console = true;
 bool write_console = false;
 #endif
 bool encrypt_mode = false;
-bool compress_mode = true;
+bool compress_mode = false;
 #ifdef _DEBUG
 logging_level log_level = logging_level::parameter;
 #else
@@ -62,7 +62,7 @@ bool parse_arguments(const map<wstring, wstring>& arguments);
 void display_help(void);
 
 void create_client(void);
-void send_echo_test_message(void);
+void send_echo_test_message(const wstring& target_id, const wstring& target_sub_id);
 void connection(const wstring& target_id, const wstring& target_sub_id, const bool& condition);
 #ifndef __USE_TYPE_CONTAINER__
 void received_message(shared_ptr<json::value> container);
@@ -176,23 +176,23 @@ void create_client(void)
 	_client->start(server_ip, server_port, high_priority_count, normal_priority_count, low_priority_count);
 }
 
-void send_echo_test_message(void)
+void send_echo_test_message(const wstring& target_id, const wstring& target_sub_id)
 {
 #ifndef __USE_TYPE_CONTAINER__
 	shared_ptr<json::value> container = make_shared<json::value>(json::value::object(true));
 
 #ifdef _WIN32
-	(*container)[HEADER][TARGET_ID] = json::value::string(L"main_server");
-	(*container)[HEADER][TARGET_SUB_ID] = json::value::string(L"");
+	(*container)[HEADER][TARGET_ID] = json::value::string(target_id);
+	(*container)[HEADER][TARGET_SUB_ID] = json::value::string(target_sub_id);
 	(*container)[HEADER][MESSAGE_TYPE] = json::value::string(L"echo_test");
 #else
-	(*container)[HEADER][TARGET_ID] = json::value::string("main_server");
-	(*container)[HEADER][TARGET_SUB_ID] = json::value::string("");
+	(*container)[HEADER][TARGET_ID] = json::value::string(converter::to_string(target_id));
+	(*container)[HEADER][TARGET_SUB_ID] = json::value::string(converter::to_string(target_sub_id));
 	(*container)[HEADER][MESSAGE_TYPE] = json::value::string("echo_test");
 #endif
 #else
 	shared_ptr<container::value_container> container =
-		make_shared<container::value_container>(L"main_server", L"", L"echo_test");
+		make_shared<container::value_container>(target_id, target_sub_id, L"echo_test");
 #endif
 
 	_client->send(container);
@@ -206,7 +206,7 @@ void connection(const wstring& target_id, const wstring& target_sub_id, const bo
 
 	if (condition)
 	{
-		send_echo_test_message();
+		send_echo_test_message(target_id, target_sub_id);
 	}
 }
 
@@ -221,14 +221,14 @@ void received_message(shared_ptr<container::value_container> container)
 		return;
 	}
 
-#ifndef __USE_TYPE_CONTAINER__
+#ifdef __USE_TYPE_CONTAINER__
+	auto message_type = _registered_messages.find(container->message_type());
+#else
 #ifdef _WIN32
 	auto message_type = _registered_messages.find((*container)[HEADER][MESSAGE_TYPE].as_string());
 #else
 	auto message_type = _registered_messages.find(converter::to_wstring((*container)[HEADER][MESSAGE_TYPE].as_string()));
 #endif
-#else
-	auto message_type = _registered_messages.find(container->message_type());
 #endif
 	if (message_type != _registered_messages.end())
 	{

@@ -34,7 +34,7 @@ bool write_console = true;
 bool write_console = false;
 #endif
 bool encrypt_mode = false;
-bool compress_mode = true;
+bool compress_mode = false;
 unsigned short compress_block_size = 1024;
 #ifdef _DEBUG
 logging_level log_level = logging_level::parameter;
@@ -275,14 +275,14 @@ void received_message(shared_ptr<container::value_container> container)
 		return;
 	}
 
-#ifndef __USE_TYPE_CONTAINER__
+#ifdef __USE_TYPE_CONTAINER__
+	auto message_type = _registered_messages.find(container->message_type());
+#else
 #ifdef _WIN32
 	auto message_type = _registered_messages.find((*container)[HEADER][MESSAGE_TYPE].as_string());
 #else
 	auto message_type = _registered_messages.find(converter::to_wstring((*container)[HEADER][MESSAGE_TYPE].as_string()));
 #endif
-#else
-	auto message_type = _registered_messages.find(container->message_type());
 #endif
 	if (message_type != _registered_messages.end())
 	{
@@ -338,7 +338,7 @@ void received_echo_test(shared_ptr<container::value_container> container)
 	(*message)[HEADER][MESSAGE_TYPE] = (*container)[HEADER][MESSAGE_TYPE];
 #else
 	shared_ptr<container::value_container> message = container->copy(false);
-	container->swap_header();
+	message->swap_header();
 #endif
 	_server->send(message);
 }
