@@ -201,7 +201,7 @@ void send_echo_test_message(void)
 void connection(const wstring& target_id, const wstring& target_sub_id, const bool& condition)
 {
 	logger::handle().write(logging_level::information,
-		fmt::format(L"a client on pathfinder: {}[{}] is {}", target_id, target_sub_id,
+		fmt::format(L"an echo_client({}[{}]) is {} to an echo_server", target_id, target_sub_id,
 			condition ? L"connected" : L"disconnected"));
 
 	if (condition)
