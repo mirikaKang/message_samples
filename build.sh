@@ -1,4 +1,5 @@
-if [ ! -d "./build/" ]; then
+if [ -d "./build/" ]
+then
     rm -rf build
 fi
 mkdir build
