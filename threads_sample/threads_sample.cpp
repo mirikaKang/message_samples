@@ -94,7 +94,12 @@ protected:
 	void working(const priorities& worker_priority) override
 	{
 		auto start = logger::handle().chrono_start();
+
+		load();
+
 		logger::handle().write(logging_level::information, converter::to_wstring(_data), start);
+
+		destroy();
 	}
 };
 
