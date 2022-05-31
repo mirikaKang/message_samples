@@ -75,12 +75,13 @@ string locale_string = "ko_KR.UTF-8";
 string locale_string = "";
 #endif
 
-bool parse_arguments(const map<wstring, wstring>& arguments);
+bool parse_arguments(argument_manager& arguments);
 void display_help(void);
 
 int main(int argc, char* argv[])
 {
-	if (!parse_arguments(argument::parse(argc, argv)))
+	argument_manager arguments(argc, argv);
+	if (!parse_arguments(arguments))
 	{
 		return 0;
 	}
@@ -113,40 +114,40 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-bool parse_arguments(const map<wstring, wstring>& arguments)
+bool parse_arguments(argument_manager& arguments)
 {
 	wstring temp;
 
-	auto target = arguments.find(L"--help");
-	if (target != arguments.end())
+	auto target = arguments.get(L"--help");
+	if (!target.empty())
 	{
 		display_help();
 
 		return false;
 	}
 
-	target = arguments.find(L"--compress_block_size");
-	if (target != arguments.end())
+	target = arguments.get(L"--compress_block_size");
+	if (!target.empty())
 	{
-		compress_block_size = (unsigned short)atoi(converter::to_string(target->second).c_str());
+		compress_block_size = (unsigned short)atoi(converter::to_string(target).c_str());
 	}
 
-	target = arguments.find(L"--dump_file_path");
-	if (target != arguments.end())
+	target = arguments.get(L"--dump_file_path");
+	if (!target.empty())
 	{
-		dump_file_path = target->second;
+		dump_file_path = target;
 	}
 
-	target = arguments.find(L"--target_folder");
-	if (target != arguments.end())
+	target = arguments.get(L"--target_folder");
+	if (!target.empty())
 	{
-		target_folder = target->second;
+		target_folder = target;
 	}
 
-	target = arguments.find(L"--decompression_mode");
-	if (target != arguments.end())
+	target = arguments.get(L"--decompression_mode");
+	if (!target.empty())
 	{
-		temp = target->second;
+		temp = target;
 		transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
 
 		if (temp.compare(L"true") == 0)
@@ -155,10 +156,10 @@ bool parse_arguments(const map<wstring, wstring>& arguments)
 		}
 	}
 
-	target = arguments.find(L"--write_console_mode");
-	if (target != arguments.end())
+	target = arguments.get(L"--write_console_mode");
+	if (!target.empty())
 	{
-		temp = target->second;
+		temp = target;
 		transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
 
 		if (temp.compare(L"true") == 0)
@@ -167,16 +168,16 @@ bool parse_arguments(const map<wstring, wstring>& arguments)
 		}
 	}
 
-	target = arguments.find(L"--logging_level");
-	if (target != arguments.end())
+	target = arguments.get(L"--logging_level");
+	if (!target.empty())
 	{
-		log_level = (logging_level)atoi(converter::to_string(target->second).c_str());
+		log_level = (logging_level)atoi(converter::to_string(target).c_str());
 	}
 
-	target = arguments.find(L"--logging_root_path");
-	if (target != arguments.end())
+	target = arguments.get(L"--logging_root_path");
+	if (!target.empty())
 	{
-		log_root_path = target->second;
+		log_root_path = target;
 	}
 
 	return true;
