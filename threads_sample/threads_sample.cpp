@@ -63,8 +63,7 @@ void display_help(void);
 
 void write_data(const vector<unsigned char>& data)
 {
-	auto start = logger::handle().chrono_start();
-	logger::handle().write(logging_level::information, converter::to_wstring(data), start);
+	logger::handle().write(logging_level::information, converter::to_wstring(data));
 }
 
 void write_high(void)
@@ -93,11 +92,9 @@ public:
 protected:
 	void working(const priorities& worker_priority) override
 	{
-		auto start = logger::handle().chrono_start();
-
 		load();
 
-		logger::handle().write(logging_level::information, converter::to_wstring(_data), start);
+		logger::handle().write(logging_level::information, converter::to_wstring(_data));
 
 		destroy();
 	}
@@ -113,18 +110,16 @@ public:
 protected:
 	void working(const priorities& worker_priority) override
 	{
-		auto start = logger::handle().chrono_start();
-
 		switch (priority())
 		{
 		case priorities::high: 
-			logger::handle().write(logging_level::information, L"테스트4_high_in_thread", start);
+			logger::handle().write(logging_level::information, L"테스트4_high_in_thread");
 			break;
 		case priorities::normal:
-			logger::handle().write(logging_level::information, L"테스트4_normal_in_thread", start);
+			logger::handle().write(logging_level::information, L"테스트4_normal_in_thread");
 			break;
 		case priorities::low:
-			logger::handle().write(logging_level::information, L"테스트4_low_in_thread", start);
+			logger::handle().write(logging_level::information, L"테스트4_low_in_thread");
 			break;
 		default:
 			break;

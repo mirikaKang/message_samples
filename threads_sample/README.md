@@ -31,8 +31,7 @@ logging_level log_level = logging_level::information;
 
 bool write_data(const std::vector<unsigned char>& data)
 {
-    auto start = logger::handle().chrono_start();
-    logger::handle().write(logging_level::information, converter::to_wstring(data), start);
+    logger::handle().write(logging_level::information, converter::to_wstring(data));
 
     return true;
 }
@@ -63,8 +62,7 @@ public:
 protected:
     bool working(const priorities& worker_priority) override
     {
-        auto start = logger::handle().chrono_start();
-        logger::handle().write(logging_level::information, converter::to_wstring(_data), start);
+        logger::handle().write(logging_level::information, converter::to_wstring(_data));
 
         return true;
     }
@@ -80,8 +78,6 @@ public:
 protected:
     bool working(const priorities& worker_priority) override
     {
-        auto start = logger::handle().chrono_start();
-
         switch (priority())
         {
         case priorities::high: 

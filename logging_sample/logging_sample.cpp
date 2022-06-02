@@ -80,8 +80,7 @@ int main(int argc, char* argv[])
 				{
 					for (unsigned int log_index = 0; log_index < 1000; ++log_index)
 					{
-						auto start = logger::handle().chrono_start();
-						logger::handle().write(logging_level::information, fmt::format(L"테스트_in_thread_{}: {}", thread_index, log_index), start);
+						logger::handle().write(logging_level::information, fmt::format(L"테스트_in_thread_{}: {}", thread_index, log_index));
 					}
 				}, thread_index)
 		);
