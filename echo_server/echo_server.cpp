@@ -51,6 +51,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fmt/xchar.h"
 #include "fmt/format.h"
 
+#include <signal.h>
+
 constexpr auto PROGRAM_NAME = L"echo_server";
 
 using namespace std;
@@ -100,6 +102,7 @@ void received_echo_test(shared_ptr<json::value> container);
 void received_message(shared_ptr<container::value_container> container);
 void received_echo_test(shared_ptr<container::value_container> container);
 #endif
+void signal_callback(int signum);
 
 void updated_backuplog(const wstring& file_path);
 
@@ -110,6 +113,8 @@ int main(int argc, char* argv[])
 	{
 		return 0;
 	}
+
+	signal(SIGINT, signal_callback);
 
 	logger::handle().set_write_console(write_console);
 	logger::handle().set_target_level(log_level);
@@ -379,4 +384,11 @@ void received_echo_test(shared_ptr<container::value_container> container)
 void updated_backuplog(const wstring& file_path)
 {
 	system(converter::to_string(fmt::format(L"log_uploader --path {}", file_path)).c_str());
+}
+
+void signal_callback(int signum)
+{
+	logger::handle().stop();
+
+	exit(signum);
 }
