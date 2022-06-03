@@ -92,11 +92,7 @@ public:
 protected:
 	void working(const priorities& worker_priority) override
 	{
-		load();
-
 		logger::handle().write(logging_level::information, converter::to_wstring(_data));
-
-		destroy();
 	}
 };
 
