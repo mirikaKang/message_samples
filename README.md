@@ -1,3 +1,4 @@
+
 [![CodeFactor](https://www.codefactor.io/repository/github/kcenon/samples/badge)](https://www.codefactor.io/repository/github/kcenon/samples)
 
 ## How to use
