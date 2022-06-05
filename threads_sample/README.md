@@ -1,4 +1,5 @@
-﻿## How to use priority thread
+﻿
+## How to use priority thread
 
 Basically, this thread library can support thread handling with multi-workers to an inherited job and a callback function.
 
