@@ -1,5 +1,6 @@
 
 [![CodeFactor](https://www.codefactor.io/repository/github/kcenon/samples/badge)](https://www.codefactor.io/repository/github/kcenon/samples)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/7e2a1c9fcaf444c8938257687c1ee68a)](https://www.codacy.com/gh/kcenon/samples/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=kcenon/samples&amp;utm_campaign=Badge_Grade)
 
 ## How to use
 
