@@ -1,4 +1,3 @@
-
 [![CodeFactor](https://www.codefactor.io/repository/github/kcenon/samples/badge)](https://www.codefactor.io/repository/github/kcenon/samples)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/7e2a1c9fcaf444c8938257687c1ee68a)](https://www.codacy.com/gh/kcenon/samples/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=kcenon/samples&amp;utm_campaign=Badge_Grade)
 
@@ -31,4 +30,5 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ## Contact
-Please report issues or questions here: https://github.com/kcenon/samples/issues
+
+Please report issues or questions here: <https://github.com/kcenon/messaging_system/issues>
