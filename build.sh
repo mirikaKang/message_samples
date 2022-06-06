@@ -10,5 +10,5 @@ make -B
 export LC_ALL=C
 unset LANGUAGE
 
-/bin/bash ./messaging_system/unittest/unittest
+./messaging_system/unittest/unittest
 #make install
