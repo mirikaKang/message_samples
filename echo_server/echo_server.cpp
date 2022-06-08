@@ -355,6 +355,8 @@ void updated_backuplog(const wstring& file_path)
 
 void signal_callback(int signum)
 {
+	_server->stop();
+	
 	logger::handle().stop();
 
 	exit(signum);
