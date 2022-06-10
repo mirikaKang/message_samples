@@ -1,7 +1,9 @@
 {
     "files.associations": {
         "iostream": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "future": "cpp",
+        "functional": "cpp"
     },
     "files.eol": "\n"
 }

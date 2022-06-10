@@ -107,8 +107,6 @@ void received_echo_test(shared_ptr<container::value_container> container);
 #endif
 void signal_callback(int signum);
 
-void updated_backuplog(const wstring& file_path);
-
 int main(int argc, char* argv[])
 {
 	argument_manager arguments(argc, argv);
@@ -346,11 +344,6 @@ void received_echo_test(shared_ptr<container::value_container> container)
 	message->swap_header();
 #endif
 	_server->send(message);
-}
-
-void updated_backuplog(const wstring& file_path)
-{
-	system(converter::to_string(fmt::format(L"log_uploader --path {}", file_path)).c_str());
 }
 
 void signal_callback(int signum)

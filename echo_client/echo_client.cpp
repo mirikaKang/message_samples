@@ -104,8 +104,6 @@ void received_message(shared_ptr<container::value_container> container);
 void received_echo_test(shared_ptr<container::value_container> container);
 #endif
 
-void updated_backuplog(const wstring& file_path);
-
 int main(int argc, char* argv[])
 {
 	argument_manager arguments(argc, argv);
@@ -240,6 +238,16 @@ void connection(const wstring& target_id, const wstring& target_sub_id, const bo
 	if (condition)
 	{
 		send_echo_test_message(target_id, target_sub_id);
+
+		return;
+	}
+
+	try
+	{
+		_promise_status.set_value(false);
+	}
+	catch(const future_error&)
+	{
 	}
 }
 
@@ -309,9 +317,4 @@ void received_echo_test(shared_ptr<container::value_container> container)
 #endif
 
 	_promise_status.set_value(true);
-}
-
-void updated_backuplog(const wstring& file_path)
-{
-	system(converter::to_string(fmt::format(L"log_uploader --path {}", file_path)).c_str());
 }
