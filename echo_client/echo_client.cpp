@@ -68,6 +68,7 @@ bool write_console = false;
 #endif
 bool encrypt_mode = false;
 bool compress_mode = false;
+unsigned short compress_block_size = 1024;
 #ifdef _DEBUG
 logging_level log_level = logging_level::parameter;
 #else
@@ -90,6 +91,8 @@ promise<bool> _promise_status;
 future<bool> _future_status;
 shared_ptr<messaging_client> _client = nullptr;
 
+void parse_bool(const wstring& key, argument_manager& arguments, bool& value);
+void parse_ushort(const wstring& key, argument_manager& arguments, unsigned short& value);
 bool parse_arguments(argument_manager& arguments);
 void display_help(void);
 
@@ -135,6 +138,34 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
+void parse_bool(const wstring& key, argument_manager& arguments, bool& value)
+{
+	auto target = arguments.get(key);
+	if (!target.empty())
+	{
+		auto temp = target;
+		transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
+
+		if (temp.compare(L"true") == 0)
+		{
+			value = true;
+		}
+		else
+		{
+			value = false;
+		}
+	}
+}
+
+void parse_ushort(const wstring& key, argument_manager& arguments, unsigned short& value)
+{
+	auto target = arguments.get(key);
+	if (!target.empty())
+	{
+		value = (unsigned short)atoi(converter::to_string(target).c_str());
+	}
+}
+
 bool parse_arguments(argument_manager& arguments)
 {
 	wstring temp;
@@ -147,6 +178,10 @@ bool parse_arguments(argument_manager& arguments)
 		return false;
 	}
 
+	parse_bool(L"--encrypt_mode", arguments, encrypt_mode);
+	parse_bool(L"--compress_mode", arguments, compress_mode);
+	parse_ushort(L"--compress_block_size", arguments, compress_block_size);
+
 	target = arguments.get(L"--connection_key");
 	if (!target.empty())
 	{
@@ -157,21 +192,7 @@ bool parse_arguments(argument_manager& arguments)
 		}
 	}
 
-	target = arguments.get(L"--write_console_mode");
-	if (!target.empty())
-	{
-		temp = target;
-		transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
-
-		if (temp.compare(L"true") == 0)
-		{
-			write_console = true;
-		}
-		else
-		{
-			write_console = false;
-		}
-	}
+	parse_bool(L"--write_console_mode", arguments, write_console);
 
 	target = arguments.get(L"--logging_level");
 	if (!target.empty())
@@ -200,6 +221,7 @@ void create_client(void)
 
 	_client = make_shared<messaging_client>(PROGRAM_NAME);
 	_client->set_compress_mode(compress_mode);
+	_client->set_compress_block_size(compress_block_size);
 	_client->set_connection_key(connection_key);
 	_client->set_session_types(session_types::message_line);
 	_client->set_connection_notification(&connection);
