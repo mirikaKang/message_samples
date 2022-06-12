@@ -3,7 +3,8 @@
         "iostream": "cpp",
         "*.ipp": "cpp",
         "future": "cpp",
-        "functional": "cpp"
+        "functional": "cpp",
+        "*.tcc": "cpp"
     },
     "files.eol": "\n"
 }
