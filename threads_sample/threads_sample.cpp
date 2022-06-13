@@ -58,6 +58,7 @@ logging_level log_level = logging_level::parameter;
 logging_level log_level = logging_level::information;
 #endif
 
+void parse_bool(const wstring& key, argument_manager& arguments, bool& value);
 bool parse_arguments(argument_manager& arguments);
 void display_help(void);
 
@@ -187,6 +188,20 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
+void parse_bool(const wstring& key, argument_manager& arguments, bool& value)
+{
+	auto target = arguments.get(key);
+	if (target.empty())
+	{
+		return;
+	}
+
+	auto temp = target;
+	transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
+
+	value = temp.compare(L"true") == 0;
+}
+
 bool parse_arguments(argument_manager& arguments)
 {
 	wstring temp;
@@ -199,21 +214,7 @@ bool parse_arguments(argument_manager& arguments)
 		return false;
 	}
 
-	target = arguments.get(L"--write_console_mode");
-	if (!target.empty())
-	{
-		temp = target;
-		transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
-
-		if (temp.compare(L"true") == 0)
-		{
-			write_console = true;
-		}
-		else
-		{
-			write_console = false;
-		}
-	}
+	parse_bool(L"--write_console_mode", arguments, write_console);
 
 	target = arguments.get(L"--logging_level");
 	if (!target.empty())

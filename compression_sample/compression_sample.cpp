@@ -77,6 +77,9 @@ string locale_string = "ko_KR.UTF-8";
 string locale_string = "";
 #endif
 
+void parse_bool(const wstring& key, argument_manager& arguments, bool& value);
+void parse_ushort(const wstring& key, argument_manager& arguments, unsigned short& value);
+void parse_string(const wstring& key, argument_manager& arguments, wstring& value);
 bool parse_arguments(argument_manager& arguments);
 void display_help(void);
 
@@ -114,6 +117,38 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
+void parse_bool(const wstring& key, argument_manager& arguments, bool& value)
+{
+	auto target = arguments.get(key);
+	if (target.empty())
+	{
+		return;
+	}
+
+	auto temp = target;
+	transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
+
+	value = temp.compare(L"true") == 0;
+}
+
+void parse_ushort(const wstring& key, argument_manager& arguments, unsigned short& value)
+{
+	auto target = arguments.get(key);
+	if (!target.empty())
+	{
+		value = (unsigned short)atoi(converter::to_string(target).c_str());
+	}
+}
+
+void parse_string(const wstring& key, argument_manager& arguments, wstring& value)
+{
+	auto target = arguments.get(key);
+	if(!target.empty())
+	{
+		value = target;
+	}
+}
+
 bool parse_arguments(argument_manager& arguments)
 {
 	wstring temp;
@@ -126,47 +161,11 @@ bool parse_arguments(argument_manager& arguments)
 		return false;
 	}
 
-	target = arguments.get(L"--compress_block_size");
-	if (!target.empty())
-	{
-		compress_block_size = (unsigned short)atoi(converter::to_string(target).c_str());
-	}
-
-	target = arguments.get(L"--dump_file_path");
-	if (!target.empty())
-	{
-		dump_file_path = target;
-	}
-
-	target = arguments.get(L"--target_folder");
-	if (!target.empty())
-	{
-		target_folder = target;
-	}
-
-	target = arguments.get(L"--compression_mode");
-	if (!target.empty())
-	{
-		temp = target;
-		transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
-
-		if (temp.compare(L"true") == 0)
-		{
-			compression_mode = true;
-		}
-	}
-
-	target = arguments.get(L"--write_console_mode");
-	if (!target.empty())
-	{
-		temp = target;
-		transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
-
-		if (temp.compare(L"true") == 0)
-		{
-			write_console = true;
-		}
-	}
+	parse_ushort(L"--compress_block_size", arguments, compress_block_size);
+	parse_string(L"--dump_file_path", arguments, dump_file_path);
+	parse_string(L"--target_folder", arguments, target_folder);
+	parse_bool(L"--compression_mode", arguments, compression_mode);
+	parse_bool(L"--write_console_mode", arguments, write_console);
 
 	target = arguments.get(L"--logging_level");
 	if (!target.empty())
@@ -174,11 +173,7 @@ bool parse_arguments(argument_manager& arguments)
 		log_level = (logging_level)atoi(converter::to_string(target).c_str());
 	}
 
-	target = arguments.get(L"--logging_root_path");
-	if (!target.empty())
-	{
-		log_root_path = target;
-	}
+	parse_string(L"--logging_root_path", arguments, log_root_path);
 
 	return true;
 }
