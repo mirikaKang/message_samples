@@ -215,6 +215,7 @@ void create_client(void)
 	}
 
 	_client = make_shared<messaging_client>(PROGRAM_NAME);
+	_client->set_encrypt_mode(encrypt_mode);
 	_client->set_compress_mode(compress_mode);
 	_client->set_compress_block_size(compress_block_size);
 	_client->set_connection_key(connection_key);
