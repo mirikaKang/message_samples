@@ -16,14 +16,8 @@ ADD_EXECUTABLE(${PROGRAM_NAME} threads_sample.cpp)
 
 INCLUDE_DIRECTORIES(../messaging_system/utilities)
 
-ADD_DEPENDENCIES(${PROGRAM_NAME} utilities)
-TARGET_LINK_LIBRARIES(${PROGRAM_NAME} PUBLIC utilities)
-
 IF(USE_TYPE_CONTAINER)
 	INCLUDE_DIRECTORIES(../messaging_system/container)
-
-	ADD_DEPENDENCIES(${PROGRAM_NAME} container)
-	TARGET_LINK_LIBRARIES(${PROGRAM_NAME} PUBLIC container)
 ENDIF()
 
 INCLUDE_DIRECTORIES(../messaging_system/threads)

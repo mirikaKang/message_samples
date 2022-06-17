@@ -14,14 +14,15 @@ PROJECT(${PROGRAM_NAME})
 
 ADD_EXECUTABLE(${PROGRAM_NAME} container_sample.cpp)
 
-INCLUDE_DIRECTORIES(../messaging_system/utilities)
-
-ADD_DEPENDENCIES(${PROGRAM_NAME} utilities)
-TARGET_LINK_LIBRARIES(${PROGRAM_NAME} PUBLIC utilities)
-
 IF(USE_TYPE_CONTAINER)
+INCLUDE_DIRECTORIES(../messaging_system/utilities)
 	INCLUDE_DIRECTORIES(../messaging_system/container)
 
 	ADD_DEPENDENCIES(${PROGRAM_NAME} container)
 	TARGET_LINK_LIBRARIES(${PROGRAM_NAME} PUBLIC container)
+ELSE()
+	INCLUDE_DIRECTORIES(../messaging_system/utilities)
+
+	ADD_DEPENDENCIES(${PROGRAM_NAME} utilities)
+	TARGET_LINK_LIBRARIES(${PROGRAM_NAME} PUBLIC utilities)
 ENDIF()
