@@ -344,8 +344,4 @@ void received_echo_test(shared_ptr<container::value_container> container)
 void signal_callback(int signum)
 {
 	_server->stop();
-	
-	logger::handle().stop();
-
-	exit(signum);
 }
