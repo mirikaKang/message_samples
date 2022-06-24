@@ -181,7 +181,7 @@ int main(int argc, char* argv[])
 	}
 
 	manager.start();
-	manager.stop();
+	manager.stop(false);
 
 	logger::handle().stop();
 
