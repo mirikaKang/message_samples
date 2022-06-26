@@ -107,6 +107,13 @@ public:
 protected:
 	void working(const priorities& worker_priority) override
 	{
+		auto pool = _job_pool.lock();
+		if (pool != nullptr)
+		{
+			pool->push(make_shared<job>(priority(), 
+				converter::to_array(L"테스트5_in_thread"), &write_data));
+		}
+
 		switch (priority())
 		{
 		case priorities::high: 

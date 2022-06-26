@@ -4,7 +4,8 @@
         "*.ipp": "cpp",
         "future": "cpp",
         "functional": "cpp",
-        "*.tcc": "cpp"
+        "*.tcc": "cpp",
+        "vector": "cpp"
     },
     "files.eol": "\n"
 }
