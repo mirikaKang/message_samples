@@ -38,8 +38,6 @@ ENDIF()
 
 # cpp_samples
 ADD_SUBDIRECTORY(logging_sample)
-ADD_SUBDIRECTORY(compression_sample)
-ADD_SUBDIRECTORY(decompression_sample)
 IF(USE_TYPE_CONTAINER)
     ADD_SUBDIRECTORY(container_sample)
 ENDIF()
