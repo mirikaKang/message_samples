@@ -187,6 +187,11 @@ bool parse_arguments(argument_manager& arguments)
 		}
 	}
 
+	parse_ushort(L"--server_port", arguments, server_port);
+	parse_ushort(L"--high_priority_count", arguments, high_priority_count);
+	parse_ushort(L"--normal_priority_count", arguments, normal_priority_count);
+	parse_ushort(L"--low_priority_count", arguments, low_priority_count);
+
 	parse_bool(L"--write_console_mode", arguments, write_console);
 
 	target = arguments.get(L"--logging_level");
