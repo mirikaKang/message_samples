@@ -5,7 +5,8 @@
         "future": "cpp",
         "functional": "cpp",
         "*.tcc": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "memory": "cpp"
     },
     "files.eol": "\n"
 }

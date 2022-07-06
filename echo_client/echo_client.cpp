@@ -34,8 +34,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 #include <stdlib.h>
 #include <future>
+#include <memory>
 
+#include "job.h"
 #include "logging.h"
+#include "job_pool.h"
 #include "converting.h"
 #include "file_handler.h"
 #include "argument_parser.h"
@@ -56,6 +59,7 @@ constexpr auto PROGRAM_NAME = L"echo_client";
 
 using namespace std;
 using namespace logging;
+using namespace threads;
 using namespace network;
 using namespace converting;
 using namespace file_handler;
@@ -81,13 +85,11 @@ unsigned short high_priority_count = 1;
 unsigned short normal_priority_count = 2;
 unsigned short low_priority_count = 3;
 
-#ifndef __USE_TYPE_CONTAINER__
-map<wstring, function<void(shared_ptr<json::value>)>> _registered_messages;
-#else
-map<wstring, function<void(shared_ptr<container::value_container>)>> _registered_messages;
-#endif
+shared_ptr<thread_pool> _thread_pool = nullptr;
 
-promise<bool> _promise_status;
+map<wstring, function<void(const vector<uint8_t>&)>> _registered_messages;
+
+optional<promise<bool>> _promise_status;
 future<bool> _future_status;
 shared_ptr<messaging_client> _client = nullptr;
 
@@ -97,15 +99,15 @@ bool parse_arguments(argument_manager& arguments);
 void display_help(void);
 
 void create_client(void);
+void create_thread_pool(void);
 void send_echo_test_message(const wstring& target_id, const wstring& target_sub_id);
 void connection(const wstring& target_id, const wstring& target_sub_id, const bool& condition);
 #ifndef __USE_TYPE_CONTAINER__
 void received_message(shared_ptr<json::value> container);
-void received_echo_test(shared_ptr<json::value> container);
 #else
 void received_message(shared_ptr<container::value_container> container);
-void received_echo_test(shared_ptr<container::value_container> container);
 #endif
+void received_echo_test(const vector<uint8_t>& data);
 
 int main(int argc, char* argv[])
 {
@@ -125,11 +127,17 @@ int main(int argc, char* argv[])
 
 	_registered_messages.insert({ L"echo_test", received_echo_test });
 
+	create_thread_pool();
+
 	create_client();
 
-	_future_status = _promise_status.get_future();
+	_promise_status = { promise<bool>() };
+	_future_status = _promise_status.value().get_future();
 
 	_future_status.wait();
+	_promise_status.reset();
+
+	_thread_pool->stop();
 
 	_client->stop();
 
@@ -230,6 +238,29 @@ void create_client(void)
 	_client->start(server_ip, server_port, high_priority_count, normal_priority_count, low_priority_count);
 }
 
+void create_thread_pool(void)
+{
+	if (_thread_pool != nullptr)
+	{
+		_thread_pool.reset();
+	}
+
+	_thread_pool = make_shared<thread_pool>();
+	for (unsigned short high = 0; high < high_priority_count; ++high)
+	{
+		_thread_pool->append(make_shared<thread_worker>(priorities::high));
+	}
+	for (unsigned short normal = 0; normal < normal_priority_count; ++normal)
+	{
+		_thread_pool->append(make_shared<thread_worker>(priorities::normal, vector<priorities> { priorities::high }));
+	}
+	for (unsigned short low = 0; low < low_priority_count; ++low)
+	{
+		_thread_pool->append(make_shared<thread_worker>(priorities::low, vector<priorities> { priorities::high, priorities::normal }));
+	}
+	_thread_pool->start();
+}
+
 void send_echo_test_message(const wstring& target_id, const wstring& target_sub_id)
 {
 #ifndef __USE_TYPE_CONTAINER__
@@ -265,12 +296,9 @@ void connection(const wstring& target_id, const wstring& target_sub_id, const bo
 		return;
 	}
 
-	try
+	if (_promise_status.has_value())
 	{
-		_promise_status.set_value(false);
-	}
-	catch(const future_error&)
-	{
+		_promise_status.value().set_value(false);
 	}
 }
 
@@ -294,9 +322,14 @@ void received_message(shared_ptr<container::value_container> container)
 	auto message_type = _registered_messages.find(converter::to_wstring((*container)[HEADER][MESSAGE_TYPE].as_string()));
 #endif
 #endif
+
 	if (message_type != _registered_messages.end())
 	{
-		message_type->second(container);
+		if (_thread_pool)
+		{
+			_thread_pool->push(make_shared<job>(priorities::high, 
+				converter::to_array(container->serialize()), message_type->second));
+		}
 
 		return;
 	}
@@ -315,12 +348,23 @@ void received_message(shared_ptr<container::value_container> container)
 #endif
 }
 
-#ifndef __USE_TYPE_CONTAINER__
-void received_echo_test(shared_ptr<json::value> container)
-#else
-void received_echo_test(shared_ptr<container::value_container> container)
-#endif
+void received_echo_test(const vector<uint8_t>& data)
 {
+	if (data.empty())
+	{
+		return;
+	}
+
+#ifdef __USE_TYPE_CONTAINER__
+	shared_ptr<container::value_container> container = make_shared<container::value_container>(converter::to_wstring(data), false);
+#else
+#ifdef _WIN32
+	shared_ptr<json::value> container = make_shared<json::value>(json::value::parse(converter::to_wstring(data)));
+#else
+	shared_ptr<json::value> container = make_shared<json::value>(json::value::parse(converter::to_string(data)));
+#endif
+#endif
+
 	if (container == nullptr)
 	{
 		return;
@@ -339,5 +383,8 @@ void received_echo_test(shared_ptr<container::value_container> container)
 #endif
 #endif
 
-	_promise_status.set_value(true);
+	if (_promise_status.has_value())
+	{
+		_promise_status.value().set_value(true);
+	}
 }
