@@ -356,7 +356,7 @@ void received_echo_test(const vector<uint8_t>& data)
 	}
 
 #ifdef __USE_TYPE_CONTAINER__
-	shared_ptr<container::value_container> container = make_shared<container::value_container>(converter::to_wstring(data), false);
+	shared_ptr<container::value_container> container = make_shared<container::value_container>(data, false);
 #else
 #ifdef _WIN32
 	shared_ptr<json::value> container = make_shared<json::value>(json::value::parse(converter::to_wstring(data)));
