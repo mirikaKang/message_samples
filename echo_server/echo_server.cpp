@@ -68,8 +68,10 @@ using namespace argument_parser;
 
 #ifdef _DEBUG
 bool write_console = true;
+bool write_console_only = false;
 #else
 bool write_console = false;
+bool write_console_only = false;
 #endif
 bool encrypt_mode = false;
 bool compress_mode = false;
@@ -122,8 +124,13 @@ int main(int argc, char* argv[])
 	}
 
 	signal(SIGINT, signal_callback);
+	signal(SIGILL, signal_callback);
+	signal(SIGABRT, signal_callback);
+	signal(SIGFPE, signal_callback);
+	signal(SIGSEGV, signal_callback);
+	signal(SIGTERM, signal_callback);
 
-	logger::handle().set_write_console(write_console);
+	logger::handle().set_write_console(write_console, write_console_only);
 	logger::handle().set_target_level(log_level);
 #ifdef _WIN32
 	logger::handle().start(PROGRAM_NAME, locale("ko_KR.UTF-8"));
@@ -221,7 +228,8 @@ bool parse_arguments(argument_manager& arguments)
 #else
 	parse_ulong(L"--session_limit_count", arguments, session_limit_count);
 #endif
-	parse_bool(L"--write_console_mode", arguments, write_console);
+	parse_bool(L"--write_console", arguments, write_console);
+	parse_bool(L"--write_console_only", arguments, write_console_only);
 
 	target = arguments.get(L"--logging_level");
 	if (!target.empty())
@@ -253,8 +261,8 @@ void display_help(void)
 	wcout << L"\tIf you want to change low priority thread workers must be appended '--low_priority_count [count]'." << endl << endl;
 	wcout << L"--session_limit_count [value]" << endl;
 	wcout << L"\tIf you want to change session limit count must be appended '--session_limit_count [count]'." << endl << endl;
-	wcout << L"--write_console_mode [value] " << endl;
-	wcout << L"\tThe write_console_mode on/off. If you want to display log on console must be appended '--write_console_mode true'.\n\tInitialize value is --write_console_mode off." << endl << endl;
+	wcout << L"--write_console [value] " << endl;
+	wcout << L"\tThe write_console_mode on/off. If you want to display log on console must be appended '--write_console true'.\n\tInitialize value is --write_console off." << endl << endl;
 	wcout << L"--logging_level [value]" << endl;
 	wcout << L"\tIf you want to change log level must be appended '--logging_level [level]'." << endl;
 }
@@ -303,8 +311,8 @@ void create_thread_pool(void)
 void connection(const wstring& target_id, const wstring& target_sub_id, const bool& condition)
 {
 	logger::handle().write(logging_level::information,
-		fmt::format(L"an echo_client({}[{}]) is {} to an echo_server", target_id, target_sub_id, 
-			condition ? L"connected" : L"disconnected"));
+		fmt::format(L"an echo_client({}[{}]) is {} an echo_server", target_id, target_sub_id, 
+			condition ? L"connected to" : L"disconnected from"));
 }
 
 #ifndef __USE_TYPE_CONTAINER__

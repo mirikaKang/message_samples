@@ -52,6 +52,7 @@ using namespace converting;
 using namespace argument_parser;
 
 bool write_console = false;
+bool write_console_only = false;
 #ifdef _DEBUG
 logging_level log_level = logging_level::parameter;
 #else
@@ -139,7 +140,7 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	logger::handle().set_write_console(write_console);
+	logger::handle().set_write_console(write_console, write_console_only);
 	logger::handle().set_target_level(log_level);
 #ifdef _WIN32
 	logger::handle().start(PROGRAM_NAME, locale("ko_KR.UTF-8"));
@@ -221,7 +222,8 @@ bool parse_arguments(argument_manager& arguments)
 		return false;
 	}
 
-	parse_bool(L"--write_console_mode", arguments, write_console);
+	parse_bool(L"--write_console", arguments, write_console);
+	parse_bool(L"--write_console_only", arguments, write_console_only);
 
 	target = arguments.get(L"--logging_level");
 	if (!target.empty())
@@ -235,8 +237,8 @@ bool parse_arguments(argument_manager& arguments)
 void display_help(void)
 {
 	wcout << L"download sample options:" << endl << endl;
-	wcout << L"--write_console_mode [value] " << endl;
-	wcout << L"\tThe write_console_mode on/off. If you want to display log on console must be appended '--write_console_mode true'.\n\tInitialize value is --write_console_mode off." << endl << endl;
+	wcout << L"--write_console [value] " << endl;
+	wcout << L"\tThe write_console_mode on/off. If you want to display log on console must be appended '--write_console true'.\n\tInitialize value is --write_console off." << endl << endl;
 	wcout << L"--logging_level [value]" << endl;
 	wcout << L"\tIf you want to change log level must be appended '--logging_level [level]'." << endl;
 }

@@ -6,7 +6,10 @@
         "functional": "cpp",
         "*.tcc": "cpp",
         "vector": "cpp",
-        "memory": "cpp"
+        "memory": "cpp",
+        "iterator": "cpp",
+        "iosfwd": "cpp",
+        "ios": "cpp"
     },
     "files.eol": "\n"
 }
