@@ -140,6 +140,7 @@ int main(int argc, char* argv[])
 	_future_status = _promise_status.value().get_future();
 
 	_future_status.wait();
+	_promise_status.reset();
 
 	_thread_pool->stop();
 	_thread_pool.reset();
@@ -322,7 +323,6 @@ void connection(const wstring& target_id, const wstring& target_sub_id, const bo
 	if (_promise_status.has_value())
 	{
 		_promise_status.value().set_value(false);
-		_promise_status.reset();
 	}
 }
 
@@ -374,7 +374,6 @@ void received_message(shared_ptr<container::value_container> container)
 	if (_promise_status.has_value())
 	{
 		_promise_status.value().set_value(false);
-		_promise_status.reset();
 	}
 }
 
@@ -386,7 +385,6 @@ void received_binary_message(const wstring& source_id, const wstring& source_sub
 		if (_promise_status.has_value())
 		{
 			_promise_status.value().set_value(false);
-			_promise_status.reset();
 		}
 
 		return;
@@ -398,7 +396,6 @@ void received_binary_message(const wstring& source_id, const wstring& source_sub
 	if (_promise_status.has_value())
 	{
 		_promise_status.value().set_value(true);
-		_promise_status.reset();
 	}
 }
 
@@ -409,7 +406,6 @@ void received_echo_test(const vector<uint8_t>& data)
 		if (_promise_status.has_value())
 		{
 			_promise_status.value().set_value(false);
-			_promise_status.reset();
 		}
 
 		return;
@@ -430,7 +426,6 @@ void received_echo_test(const vector<uint8_t>& data)
 		if (_promise_status.has_value())
 		{
 			_promise_status.value().set_value(false);
-			_promise_status.reset();
 		}
 
 		return;
@@ -452,6 +447,5 @@ void received_echo_test(const vector<uint8_t>& data)
 	if (_promise_status.has_value())
 	{
 		_promise_status.value().set_value(true);
-		_promise_status.reset();
 	}
 }
