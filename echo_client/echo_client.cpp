@@ -74,6 +74,7 @@ bool write_console_only = false;
 #endif
 bool encrypt_mode = false;
 bool compress_mode = false;
+bool binary_mode = false;
 unsigned short compress_block_size = 1024;
 #ifdef _DEBUG
 logging_level log_level = logging_level::parameter;
@@ -109,6 +110,8 @@ void received_message(shared_ptr<json::value> container);
 #else
 void received_message(shared_ptr<container::value_container> container);
 #endif
+void received_binary_message(const wstring& source_id, const wstring& source_sub_id, 
+	const wstring& target_id, const wstring& target_sub_id, const vector<uint8_t>& data);
 void received_echo_test(const vector<uint8_t>& data);
 
 int main(int argc, char* argv[])
@@ -186,6 +189,7 @@ bool parse_arguments(argument_manager& arguments)
 
 	parse_bool(L"--encrypt_mode", arguments, encrypt_mode);
 	parse_bool(L"--compress_mode", arguments, compress_mode);
+	parse_bool(L"--binary_mode", arguments, binary_mode);
 	parse_ushort(L"--compress_block_size", arguments, compress_block_size);
 
 	target = arguments.get(L"--connection_key");
@@ -237,8 +241,16 @@ void create_client(void)
 	_client->set_compress_block_size(compress_block_size);
 	_client->set_connection_key(connection_key);
 	_client->set_connection_notification(&connection);
-	_client->set_session_types(session_types::message_line);
-	_client->set_message_notification(&received_message);
+	if (binary_mode)
+	{
+		_client->set_binary_notification(&received_binary_message);
+		_client->set_session_types({ session_types::binary_line });
+	}
+	else
+	{
+		_client->set_message_notification(&received_message);
+		_client->set_session_types({ session_types::message_line });
+	}
 	_client->start(server_ip, server_port, high_priority_count, normal_priority_count, low_priority_count);
 }
 
@@ -267,6 +279,13 @@ void create_thread_pool(void)
 
 void send_echo_test_message(const wstring& target_id, const wstring& target_sub_id)
 {
+	if (binary_mode)
+	{
+		_client->send_binary(target_id, target_sub_id, converter::to_array(L"echo_test"));
+
+		return;
+	}
+
 #ifndef __USE_TYPE_CONTAINER__
 	shared_ptr<json::value> container = make_shared<json::value>(json::value::object(true));
 
@@ -362,7 +381,25 @@ void received_message(shared_ptr<container::value_container> container)
 void received_binary_message(const wstring& source_id, const wstring& source_sub_id, 
 	const wstring& target_id, const wstring& target_sub_id, const vector<uint8_t>& data)
 {
-		
+	if (data.empty())
+	{
+		if (_promise_status.has_value())
+		{
+			_promise_status.value().set_value(false);
+			_promise_status.reset();
+		}
+
+		return;
+	}
+
+	logger::handle().write(logging_level::sequence,
+		fmt::format(L"received message: {}", converter::to_wstring(data)));
+
+	if (_promise_status.has_value())
+	{
+		_promise_status.value().set_value(true);
+		_promise_status.reset();
+	}
 }
 
 void received_echo_test(const vector<uint8_t>& data)

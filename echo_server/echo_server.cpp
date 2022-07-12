@@ -75,6 +75,7 @@ bool write_console_only = false;
 #endif
 bool encrypt_mode = false;
 bool compress_mode = false;
+bool binary_mode = false;
 unsigned short compress_block_size = 1024;
 #ifdef _DEBUG
 logging_level log_level = logging_level::parameter;
@@ -112,6 +113,8 @@ void received_message(shared_ptr<json::value> container);
 #else
 void received_message(shared_ptr<container::value_container> container);
 #endif
+void received_binary_message(const wstring& source_id, const wstring& source_sub_id, 
+	const wstring& target_id, const wstring& target_sub_id, const vector<uint8_t>& data);
 void received_echo_test(const vector<uint8_t>& data);
 void signal_callback(int signum);
 
@@ -207,6 +210,7 @@ bool parse_arguments(argument_manager& arguments)
 
 	parse_bool(L"--encrypt_mode", arguments, encrypt_mode);
 	parse_bool(L"--compress_mode", arguments, compress_mode);
+	parse_bool(L"--binary_mode", arguments, binary_mode);
 	parse_ushort(L"--compress_block_size", arguments, compress_block_size);
 
 	target = arguments.get(L"--connection_key");
@@ -279,9 +283,17 @@ void create_server(void)
 	_server->set_compress_mode(compress_mode);
 	_server->set_connection_key(connection_key);
 	_server->set_session_limit_count(session_limit_count);
-	_server->set_possible_session_types({ session_types::message_line });
 	_server->set_connection_notification(&connection);
-	_server->set_message_notification(&received_message);
+	if (binary_mode)
+	{
+		_server->set_binary_notification(&received_binary_message);
+		_server->set_possible_session_types({ session_types::binary_line });
+	}
+	else
+	{
+		_server->set_message_notification(&received_message);
+		_server->set_possible_session_types({ session_types::message_line });
+	}
 	_server->start(server_port, high_priority_count, normal_priority_count, low_priority_count);
 }
 
@@ -358,6 +370,15 @@ void received_message(shared_ptr<container::value_container> container)
 		converter::to_wstring(fmt::format("received message: {}", container->serialize())));
 #endif
 #endif
+}
+
+void received_binary_message(const wstring& source_id, const wstring& source_sub_id, 
+	const wstring& target_id, const wstring& target_sub_id, const vector<uint8_t>& data)
+{
+	logger::handle().write(logging_level::information,
+		fmt::format(L"received message: {}[{}] = {}", source_id, source_sub_id, converter::to_wstring(data)));
+
+	_server->send_binary(source_id, source_sub_id, data);
 }
 
 void received_echo_test(const vector<uint8_t>& data)
