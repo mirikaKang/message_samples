@@ -14,8 +14,8 @@ PROJECT(${PROGRAM_NAME})
 
 ADD_EXECUTABLE(${PROGRAM_NAME} container_sample.cpp)
 
-INCLUDE_DIRECTORIES(../messaging_system/utilities)
-INCLUDE_DIRECTORIES(../messaging_system/container)
+TARGET_INCLUDE_DIRECTORIES(${PROGRAM_NAME} PUBLIC ../messaging_system/utilities)
+TARGET_INCLUDE_DIRECTORIES(${PROGRAM_NAME} PUBLIC ../messaging_system/container)
 
 ADD_DEPENDENCIES(${PROGRAM_NAME} container)
 TARGET_LINK_LIBRARIES(${PROGRAM_NAME} PUBLIC container)

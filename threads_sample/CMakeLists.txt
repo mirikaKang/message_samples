@@ -14,9 +14,9 @@ PROJECT(${PROGRAM_NAME})
 
 ADD_EXECUTABLE(${PROGRAM_NAME} threads_sample.cpp)
 
-INCLUDE_DIRECTORIES(../messaging_system/utilities)
-INCLUDE_DIRECTORIES(../messaging_system/container)
-INCLUDE_DIRECTORIES(../messaging_system/threads)
+TARGET_INCLUDE_DIRECTORIES(${PROGRAM_NAME} PUBLIC ../messaging_system/utilities)
+TARGET_INCLUDE_DIRECTORIES(${PROGRAM_NAME} PUBLIC ../messaging_system/container)
+TARGET_INCLUDE_DIRECTORIES(${PROGRAM_NAME} PUBLIC ../messaging_system/threads)
 
 ADD_DEPENDENCIES(${PROGRAM_NAME} threads)
 TARGET_LINK_LIBRARIES(${PROGRAM_NAME} PUBLIC threads)
