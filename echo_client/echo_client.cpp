@@ -44,13 +44,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "argument_parser.h"
 #include "messaging_client.h"
 
-#ifndef __USE_TYPE_CONTAINER__
-#include "cpprest/json.h"
-#else
 #include "container.h"
 #include "values/string_value.h"
 #include "values/container_value.h"
-#endif
 
 #include "fmt/xchar.h"
 #include "fmt/format.h"
@@ -61,6 +57,7 @@ using namespace std;
 using namespace logging;
 using namespace threads;
 using namespace network;
+using namespace container;
 using namespace converting;
 using namespace file_handler;
 using namespace argument_parser;
@@ -105,11 +102,7 @@ void create_client(void);
 void create_thread_pool(void);
 void send_echo_test_message(const wstring& target_id, const wstring& target_sub_id);
 void connection(const wstring& target_id, const wstring& target_sub_id, const bool& condition);
-#ifndef __USE_TYPE_CONTAINER__
-void received_message(shared_ptr<json::value> container);
-#else
 void received_message(shared_ptr<container::value_container> container);
-#endif
 void received_binary_message(const wstring& source_id, const wstring& source_sub_id, 
 	const wstring& target_id, const wstring& target_sub_id, const vector<uint8_t>& data);
 void received_echo_test(const vector<uint8_t>& data);
@@ -287,22 +280,8 @@ void send_echo_test_message(const wstring& target_id, const wstring& target_sub_
 		return;
 	}
 
-#ifndef __USE_TYPE_CONTAINER__
-	shared_ptr<json::value> container = make_shared<json::value>(json::value::object(true));
-
-#ifdef _WIN32
-	(*container)[HEADER][TARGET_ID] = json::value::string(target_id);
-	(*container)[HEADER][TARGET_SUB_ID] = json::value::string(target_sub_id);
-	(*container)[HEADER][MESSAGE_TYPE] = json::value::string(L"echo_test");
-#else
-	(*container)[HEADER][TARGET_ID] = json::value::string(converter::to_string(target_id));
-	(*container)[HEADER][TARGET_SUB_ID] = json::value::string(converter::to_string(target_sub_id));
-	(*container)[HEADER][MESSAGE_TYPE] = json::value::string("echo_test");
-#endif
-#else
 	shared_ptr<container::value_container> container =
-		make_shared<container::value_container>(target_id, target_sub_id, L"echo_test");
-#endif
+		make_shared<container::value_container>(target_id, target_sub_id, L"echo_test", vector<shared_ptr<value>>{});
 
 	_client->send(container);
 }
@@ -326,27 +305,14 @@ void connection(const wstring& target_id, const wstring& target_sub_id, const bo
 	}
 }
 
-#ifndef __USE_TYPE_CONTAINER__
-void received_message(shared_ptr<json::value> container)
-#else
 void received_message(shared_ptr<container::value_container> container)
-#endif
 {
 	if (container == nullptr)
 	{
 		return;
 	}
 
-#ifdef __USE_TYPE_CONTAINER__
 	auto message_type = _registered_messages.find(container->message_type());
-#else
-#ifdef _WIN32
-	auto message_type = _registered_messages.find((*container)[HEADER][MESSAGE_TYPE].as_string());
-#else
-	auto message_type = _registered_messages.find(converter::to_wstring((*container)[HEADER][MESSAGE_TYPE].as_string()));
-#endif
-#endif
-
 	if (message_type != _registered_messages.end())
 	{
 		if (_thread_pool)
@@ -358,18 +324,8 @@ void received_message(shared_ptr<container::value_container> container)
 		return;
 	}
 
-#ifdef __USE_TYPE_CONTAINER__
 	logger::handle().write(logging_level::sequence,
 		fmt::format(L"unknown message: {}", container->serialize()));
-#else
-#ifdef _WIN32
-	logger::handle().write(logging_level::sequence, 
-		fmt::format(L"unknown message: {}", container->serialize()));
-#else
-	logger::handle().write(logging_level::sequence, 
-		converter::to_wstring(fmt::format("unknown message: {}", container->serialize())));
-#endif
-#endif
 
 	if (_promise_status.has_value())
 	{
@@ -411,16 +367,7 @@ void received_echo_test(const vector<uint8_t>& data)
 		return;
 	}
 
-#ifdef __USE_TYPE_CONTAINER__
 	shared_ptr<container::value_container> container = make_shared<container::value_container>(data, false);
-#else
-#ifdef _WIN32
-	shared_ptr<json::value> container = make_shared<json::value>(json::value::parse(converter::to_wstring(data)));
-#else
-	shared_ptr<json::value> container = make_shared<json::value>(json::value::parse(converter::to_string(data)));
-#endif
-#endif
-
 	if (container == nullptr)
 	{
 		if (_promise_status.has_value())
@@ -431,18 +378,8 @@ void received_echo_test(const vector<uint8_t>& data)
 		return;
 	}
 
-#ifdef __USE_TYPE_CONTAINER__
 	logger::handle().write(logging_level::sequence,
 		fmt::format(L"received message: {}", container->message_type()));
-#else
-#ifdef _WIN32
-	logger::handle().write(logging_level::information, 
-		fmt::format(L"received message: {}", (*container)[HEADER][MESSAGE_TYPE].as_string()));
-#else
-	logger::handle().write(logging_level::information, 
-		converter::to_wstring(fmt::format("received message: {}", converter::to_wstring((*container)[HEADER][MESSAGE_TYPE].as_string()))));
-#endif
-#endif
 
 	if (_promise_status.has_value())
 	{

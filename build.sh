@@ -4,19 +4,15 @@ rm -rf build
 
 mkdir build
 cd build
-cmake .. -DCMAKE_TOOLCHAIN_FILE="../../vcpkg/scripts/buildsystems/vcpkg.cmake"
+cmake .. -DCMAKE_TOOLCHAIN_FILE="../../vcpkg/scripts/buildsystems/vcpkg.cmake" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=YES -DUSE_SWIG_INTERFACE=ON
 make -B
 export LC_ALL=C
 unset LANGUAGE
 
-./messaging_system/unittest/unittest
-
 cd ..
-mkdir bin
-cp ./build/container_sample/container_sample ./bin/container_sample
-cp ./build/echo_client/echo_client ./bin/echo_client
-cp ./build/echo_server/echo_server ./bin/echo_server
-cp ./build/logging_sample/logging_sample ./bin/logging_sample
-cp ./build/threads_sample/threads_sample ./bin/threads_sample
+
+cp -R ./build/bin/* ./bin
+
+./bin/unittest
 
 rm -rf build

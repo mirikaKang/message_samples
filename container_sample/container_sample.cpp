@@ -30,7 +30,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *****************************************************************************/
 
-#ifdef __USE_TYPE_CONTAINER__
 #include "logging.h"
 #include "argument_parser.h"
 
@@ -172,9 +171,3 @@ void display_help(void)
 	wcout << L"--logging_level [value]" << endl;
 	wcout << L"\tIf you want to change log level must be appended '--logging_level [level]'." << endl;
 }
-#else
-int main(int argc, char* argv[])
-{
-	return 0;
-}
-#endif

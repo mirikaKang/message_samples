@@ -43,13 +43,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "argument_parser.h"
 #include "messaging_server.h"
 
-#ifndef __USE_TYPE_CONTAINER__
-#include "cpprest/json.h"
-#else
 #include "container.h"
 #include "values/string_value.h"
 #include "values/container_value.h"
-#endif
 
 #include "fmt/xchar.h"
 #include "fmt/format.h"
@@ -108,11 +104,7 @@ void display_help(void);
 void create_server(void);
 void create_thread_pool(void);
 void connection(const wstring& target_id, const wstring& target_sub_id, const bool& condition);
-#ifndef __USE_TYPE_CONTAINER__
-void received_message(shared_ptr<json::value> container);
-#else
 void received_message(shared_ptr<container::value_container> container);
-#endif
 void received_binary_message(const wstring& source_id, const wstring& source_sub_id, 
 	const wstring& target_id, const wstring& target_sub_id, const vector<uint8_t>& data);
 void received_echo_test(const vector<uint8_t>& data);
@@ -327,26 +319,14 @@ void connection(const wstring& target_id, const wstring& target_sub_id, const bo
 			condition ? L"connected to" : L"disconnected from"));
 }
 
-#ifndef __USE_TYPE_CONTAINER__
-void received_message(shared_ptr<json::value> container)
-#else
 void received_message(shared_ptr<container::value_container> container)
-#endif
 {
 	if (container == nullptr)
 	{
 		return;
 	}
 
-#ifdef __USE_TYPE_CONTAINER__
 	auto message_type = _registered_messages.find(container->message_type());
-#else
-#ifdef _WIN32
-	auto message_type = _registered_messages.find((*container)[HEADER][MESSAGE_TYPE].as_string());
-#else
-	auto message_type = _registered_messages.find(converter::to_wstring((*container)[HEADER][MESSAGE_TYPE].as_string()));
-#endif
-#endif
 	if (message_type != _registered_messages.end())
 	{
 		if (_thread_pool)
@@ -358,18 +338,8 @@ void received_message(shared_ptr<container::value_container> container)
 		return;
 	}
 
-#ifdef __USE_TYPE_CONTAINER__
 	logger::handle().write(logging_level::information,
 		fmt::format(L"received message: {}", container->serialize()));
-#else
-#ifdef _WIN32
-	logger::handle().write(logging_level::information,
-		fmt::format(L"received message: {}", container->serialize()));
-#else
-	logger::handle().write(logging_level::information,
-		converter::to_wstring(fmt::format("received message: {}", container->serialize())));
-#endif
-#endif
 }
 
 void received_binary_message(const wstring& source_id, const wstring& source_sub_id, 
@@ -388,45 +358,18 @@ void received_echo_test(const vector<uint8_t>& data)
 		return;
 	}
 
-#ifdef __USE_TYPE_CONTAINER__
 	shared_ptr<container::value_container> container = make_shared<container::value_container>(data, false);
-#else
-#ifdef _WIN32
-	shared_ptr<json::value> container = make_shared<json::value>(json::value::parse(converter::to_wstring(data)));
-#else
-	shared_ptr<json::value> container = make_shared<json::value>(json::value::parse(converter::to_string(data)));
-#endif
-#endif
-
 	if (container == nullptr)
 	{
 		return;
 	}
 
-#ifdef __USE_TYPE_CONTAINER__
 	logger::handle().write(logging_level::information, 
 		fmt::format(L"received message: {}", container->serialize()));
-#else
-#ifdef _WIN32
-	logger::handle().write(logging_level::information, 
-		fmt::format(L"received message: {}", container->serialize()));
-#else
-	logger::handle().write(logging_level::information, 
-		converter::to_wstring(fmt::format("received message: {}", container->serialize())));
-#endif
-#endif
 
-#ifndef __USE_TYPE_CONTAINER__
-	shared_ptr<json::value> message = make_shared<json::value>(json::value::object(true));
-	(*message)[HEADER][SOURCE_ID] = (*container)[HEADER][TARGET_ID];
-	(*message)[HEADER][SOURCE_SUB_ID] = (*container)[HEADER][TARGET_SUB_ID];
-	(*message)[HEADER][TARGET_ID] = (*container)[HEADER][SOURCE_ID];
-	(*message)[HEADER][TARGET_SUB_ID] = (*container)[HEADER][SOURCE_SUB_ID];
-	(*message)[HEADER][MESSAGE_TYPE] = (*container)[HEADER][MESSAGE_TYPE];
-#else
 	shared_ptr<container::value_container> message = container->copy(false);
 	message->swap_header();
-#endif
+
 	_server->send(message);
 }
 
