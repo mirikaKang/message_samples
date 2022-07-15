@@ -4,7 +4,7 @@ rm -rf build
 
 mkdir build
 cd build
-cmake .. -DCMAKE_TOOLCHAIN_FILE="../../vcpkg/scripts/buildsystems/vcpkg.cmake" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=YES -DUSE_SWIG_INTERFACE=ON
+cmake .. -DCMAKE_TOOLCHAIN_FILE="../../vcpkg/scripts/buildsystems/vcpkg.cmake" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=YES
 make -B
 export LC_ALL=C
 unset LANGUAGE
@@ -13,6 +13,8 @@ cd ..
 
 cp -R ./build/bin/* ./bin
 
-./bin/unittest
+if [ ! -f "./bin/unittest" ]; then
+    ./bin/unittest
+fi
 
 rm -rf build
