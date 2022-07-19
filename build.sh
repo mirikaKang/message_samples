@@ -13,7 +13,7 @@ cd ..
 
 cp -R ./build/bin/* ./bin
 
-if [ ! -f "./bin/unittest" ]; then
+if [ -f "./bin/unittest" ]; then
     ./bin/unittest
 fi
 
