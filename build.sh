@@ -1,4 +1,5 @@
 #!/bin/bash
+rm -rf lib
 rm -rf bin
 rm -rf build
 
@@ -11,10 +12,8 @@ unset LANGUAGE
 
 cd ..
 
-cp -R ./build/bin/* ./bin
-
-if [ -f "./bin/unittest" ]; then
-    ./bin/unittest
+if [ -f "./build/bin/unittest" ]; then
+    ./build/bin/unittest
 fi
 
 rm -rf build
