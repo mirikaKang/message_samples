@@ -1,4 +1,5 @@
-from messaging_system.network.network import *
+import sys
+from messaging_system.python import *
 
 server_address = ('127.0.0.1', 9876)
 client = messaging_client('echo_network', 231, 67)
@@ -20,5 +21,6 @@ client.send_packet('@header={'
                     '[snipping_targets,e,0];'
                 '};')
 
-type_code, message = client.recv()
+print(client.recv_packet())
+
 client.stop()
