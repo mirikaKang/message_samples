@@ -1,26 +1,14 @@
 import sys
-from messaging_system.python import *
+sys.path.append('./messaging_system')
 
-server_address = ('127.0.0.1', 9876)
-client = messaging_client('echo_network', 231, 67)
-client.start(server_address)
-client.send_packet('@header={'
-                    '[1,unknown];'
-                    '[2,127.0.0.1:9876];'
-                    '[3,echo_client];'
-                    '[4,];'
-                    '[5,request_connection];'
-                    '[6,1.0.0.0];'
-                '};'
-                '@data={'
-                    '[connection_key,d,echo_network];'
-                    '[auto_echo,1,false];'
-                    '[auto_echo_interval_seconds,3,1];'
-                    '[session_type,2,1];'
-                    '[bridge_mode,1,false];'
-                    '[snipping_targets,e,0];'
-                '};')
+from messaging_system import *
 
-print(client.recv_packet())
+client = messaging_client('echo_client', 'echo_network', 231, 67)
+client.start('127.0.0.1', 9876)
 
+echo_packet = container()
+echo_packet.create('', '',
+                    'echo_server', '', 'echo_test', [])
+client.send_packet(echo_packet)
+print(client.recv_packet().serialize())        
 client.stop()
