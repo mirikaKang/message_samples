@@ -39,6 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "logging.h"
 #include "job_pool.h"
 #include "converting.h"
+#include "thread_pool.h"
 #include "file_handler.h"
 #include "argument_parser.h"
 #include "messaging_server.h"
