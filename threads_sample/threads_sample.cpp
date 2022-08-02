@@ -51,12 +51,12 @@ using namespace threads;
 using namespace converting;
 using namespace argument_parser;
 
-bool write_console = false;
-bool write_console_only = false;
 #ifdef _DEBUG
 logging_level log_level = logging_level::parameter;
+logging_styles logging_style = logging_styles::console_only;
 #else
 logging_level log_level = logging_level::information;
+logging_styles logging_style = logging_styles::file_only;
 #endif
 
 void parse_bool(const wstring& key, argument_manager& arguments, bool& value);
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	logger::handle().set_write_console(write_console, write_console_only);
+	logger::handle().set_write_console(logging_style);
 	logger::handle().set_target_level(log_level);
 #ifdef _WIN32
 	logger::handle().start(PROGRAM_NAME, locale("ko_KR.UTF-8"));
@@ -222,8 +222,25 @@ bool parse_arguments(argument_manager& arguments)
 		return false;
 	}
 
-	parse_bool(L"--write_console", arguments, write_console);
-	parse_bool(L"--write_console_only", arguments, write_console_only);
+	bool temp_condition = false;
+	parse_bool(L"--write_console_only", arguments, temp_condition);
+	if (temp_condition)
+	{
+		logging_style = logging_styles::console_only;
+	}
+	else
+	{
+		temp_condition = true;
+		parse_bool(L"--write_console", arguments, temp_condition);
+		if (temp_condition)
+		{
+			logging_style = logging_styles::file_and_console;
+		}
+		else
+		{
+			logging_style = logging_styles::file_only;
+		}
+	}
 
 	target = arguments.get(L"--logging_level");
 	if (!target.empty())

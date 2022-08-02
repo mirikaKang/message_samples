@@ -63,21 +63,16 @@ using namespace converting;
 using namespace file_handler;
 using namespace argument_parser;
 
-#ifdef _DEBUG
-bool write_console = true;
-bool write_console_only = false;
-#else
-bool write_console = false;
-bool write_console_only = false;
-#endif
 bool encrypt_mode = false;
 bool compress_mode = false;
 bool binary_mode = false;
 unsigned short compress_block_size = 1024;
 #ifdef _DEBUG
 logging_level log_level = logging_level::parameter;
+logging_styles logging_style = logging_styles::console_only;
 #else
 logging_level log_level = logging_level::information;
+logging_styles logging_style = logging_styles::file_only;
 #endif
 wstring connection_key = L"echo_network";
 unsigned short server_port = 9876;
@@ -126,7 +121,7 @@ int main(int argc, char* argv[])
 	signal(SIGSEGV, signal_callback);
 	signal(SIGTERM, signal_callback);
 
-	logger::handle().set_write_console(write_console, write_console_only);
+	logger::handle().set_write_console(logging_style);
 	logger::handle().set_target_level(log_level);
 #ifdef _WIN32
 	logger::handle().start(PROGRAM_NAME, locale("ko_KR.UTF-8"));
@@ -225,8 +220,26 @@ bool parse_arguments(argument_manager& arguments)
 #else
 	parse_ulong(L"--session_limit_count", arguments, session_limit_count);
 #endif
-	parse_bool(L"--write_console", arguments, write_console);
-	parse_bool(L"--write_console_only", arguments, write_console_only);
+	
+	bool temp_condition = false;
+	parse_bool(L"--write_console_only", arguments, temp_condition);
+	if (temp_condition)
+	{
+		logging_style = logging_styles::console_only;
+	}
+	else
+	{
+		temp_condition = true;
+		parse_bool(L"--write_console", arguments, temp_condition);
+		if (temp_condition)
+		{
+			logging_style = logging_styles::file_and_console;
+		}
+		else
+		{
+			logging_style = logging_styles::file_only;
+		}
+	}
 
 	target = arguments.get(L"--logging_level");
 	if (!target.empty())
