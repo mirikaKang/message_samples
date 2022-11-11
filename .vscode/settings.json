@@ -9,7 +9,9 @@
         "memory": "cpp",
         "iterator": "cpp",
         "iosfwd": "cpp",
-        "ios": "cpp"
+        "ios": "cpp",
+        "iomanip": "cpp",
+        "chrono": "cpp"
     },
     "files.eol": "\n"
 }
