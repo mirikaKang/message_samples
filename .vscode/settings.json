@@ -11,7 +11,13 @@
         "iosfwd": "cpp",
         "ios": "cpp",
         "iomanip": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "optional": "cpp",
+        "array": "cpp",
+        "istream": "cpp",
+        "tuple": "cpp",
+        "utility": "cpp",
+        "variant": "cpp"
     },
     "files.eol": "\n"
 }

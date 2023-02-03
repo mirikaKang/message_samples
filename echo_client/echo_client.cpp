@@ -88,8 +88,6 @@ optional<promise<bool>> _promise_status;
 future<bool> _future_status;
 shared_ptr<messaging_client> _client = nullptr;
 
-void parse_bool(const wstring& key, argument_manager& arguments, bool& value);
-void parse_ushort(const wstring& key, argument_manager& arguments, unsigned short& value);
 bool parse_arguments(argument_manager& arguments);
 void display_help(void);
 
@@ -141,86 +139,99 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void parse_bool(const wstring& key, argument_manager& arguments, bool& value)
-{
-	auto target = arguments.get(key);
-	if (target.empty())
-	{
-		return;
-	}
-
-	auto temp = target;
-	transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
-
-	value = temp.compare(L"true") == 0;
-}
-
-void parse_ushort(const wstring& key, argument_manager& arguments, unsigned short& value)
-{
-	auto target = arguments.get(key);
-	if (!target.empty())
-	{
-		value = (unsigned short)atoi(converter::to_string(target).c_str());
-	}
-}
-
 bool parse_arguments(argument_manager& arguments)
 {
 	wstring temp;
 
-	auto target = arguments.get(L"--help");
-	if (!target.empty())
+	auto string_target = arguments.to_string(L"--help");
+	if (string_target != nullopt)
 	{
 		display_help();
 
 		return false;
 	}
 
-	parse_bool(L"--encrypt_mode", arguments, encrypt_mode);
-	parse_bool(L"--compress_mode", arguments, compress_mode);
-	parse_bool(L"--binary_mode", arguments, binary_mode);
-	parse_ushort(L"--compress_block_size", arguments, compress_block_size);
-
-	target = arguments.get(L"--connection_key");
-	if (!target.empty())
+	auto bool_target = arguments.to_bool(L"--encrypt_mode");
+	if (bool_target != nullopt)
 	{
-		temp = converter::to_wstring(file::load(target));
+		encrypt_mode = *bool_target;
+	}
+
+	bool_target = arguments.to_bool(L"--compress_mode");
+	if (bool_target != nullopt)
+	{
+		compress_mode = *bool_target;
+	}
+
+	bool_target = arguments.to_bool(L"--binary_mode");
+	if (bool_target != nullopt)
+	{
+		binary_mode = *bool_target;
+	}
+
+	auto ushort_target = arguments.to_ushort(L"--compress_block_size");
+	if (ushort_target != nullopt)
+	{
+		compress_block_size = *ushort_target;
+	}
+
+	string_target = arguments.to_string(L"--connection_key");
+	if (string_target != nullopt)
+	{
+		temp = converter::to_wstring(file::load(*string_target));
 		if (!temp.empty())
 		{
 			connection_key = temp;
 		}
 	}
 
-	parse_ushort(L"--server_port", arguments, server_port);
-	parse_ushort(L"--high_priority_count", arguments, high_priority_count);
-	parse_ushort(L"--normal_priority_count", arguments, normal_priority_count);
-	parse_ushort(L"--low_priority_count", arguments, low_priority_count);
+	ushort_target = arguments.to_ushort(L"--server_port");
+	if (ushort_target != nullopt)
+	{
+		server_port = *ushort_target;
+	}
 
-	bool temp_condition = false;
-	parse_bool(L"--write_console_only", arguments, temp_condition);
-	if (temp_condition)
+	ushort_target = arguments.to_ushort(L"--high_priority_count");
+	if (ushort_target != nullopt)
+	{
+		high_priority_count = *ushort_target;
+	}
+
+	ushort_target = arguments.to_ushort(L"--normal_priority_count");
+	if (ushort_target != nullopt)
+	{
+		normal_priority_count = *ushort_target;
+	}
+
+	ushort_target = arguments.to_ushort(L"--low_priority_count");
+	if (ushort_target != nullopt)
+	{
+		low_priority_count = *ushort_target;
+	}
+	
+	auto int_target = arguments.to_int(L"--logging_level");
+	if (int_target != nullopt)
+	{
+		log_level = (logging_level)*int_target;
+	}
+	
+	bool_target = arguments.to_bool(L"--write_console_only");
+	if (bool_target != nullopt && *bool_target)
 	{
 		logging_style = logging_styles::console_only;
-	}
-	else
-	{
-		temp_condition = true;
-		parse_bool(L"--write_console", arguments, temp_condition);
-		if (temp_condition)
-		{
-			logging_style = logging_styles::file_and_console;
-		}
-		else
-		{
-			logging_style = logging_styles::file_only;
-		}
+
+		return true;
 	}
 
-	target = arguments.get(L"--logging_level");
-	if (!target.empty())
+	bool_target = arguments.to_bool(L"--write_console");
+	if (bool_target != nullopt && *bool_target)
 	{
-		log_level = (logging_level)atoi(converter::to_string(target).c_str());
+		logging_style = logging_styles::file_and_console;
+
+		return true;
 	}
+
+	logging_style = logging_styles::file_only;
 
 	return true;
 }
