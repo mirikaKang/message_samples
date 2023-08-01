@@ -1,6 +1,8 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.14)
 
 SET(PROGRAM_NAME logging_sample)
+set(CMAKE_C_COMPILER "/usr/bin/aarch64-linux-gnu-gcc")
+set(CMAKE_CXX_COMPILER "/usr/bin/aarch64-linux-gnu-g++")
 SET(CMAKE_CXX_STANDARD 17)
 SET(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
